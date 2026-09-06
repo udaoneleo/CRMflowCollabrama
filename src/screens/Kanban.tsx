@@ -9,7 +9,7 @@ const typeTone: Record<Deal['type'], string> = { Stories: 'violet', Reels: 'sky'
 export default function Kanban({ deals, setDeals, onOpenDeal, onNewDeal, onOpenKB }: {
   deals: Deal[];
   setDeals: (updater: (prev: Deal[]) => Deal[]) => void;
-  onOpenDeal: (id: string) => void;
+  onOpenDeal: (id: string, tab?: string) => void;
   onNewDeal: () => void;
   onOpenKB: (brandId?: string) => void;
 }) {
@@ -145,13 +145,21 @@ export default function Kanban({ deals, setDeals, onOpenDeal, onNewDeal, onOpenK
                   <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2">Тип сотрудничества</div>
                   <div className="text-[12.5px] font-bold text-gray-800 leading-snug">{ctx.terms}</div>
                 </div>
-                <div className="rounded-xl border border-gray-100 bg-slate-50/60 p-3">
-                  <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2">Автор</div>
-                  <div className="flex items-center gap-2">
+                <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50/60 p-3 relative overflow-hidden">
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500" />
+                  <div className="flex items-center justify-between mb-2 pl-1.5">
+                    <span className="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wide inline-flex items-center gap-1.5"><MessageCircle size={12} />Коммуникации</span>
+                    <span className="text-[10px] font-extrabold text-indigo-500 bg-white border border-indigo-200 rounded-md px-1.5 py-0.5 tabular-nums">{ctx.msgs.length} сообщ.</span>
+                  </div>
+                  <div className="flex items-center gap-2 pl-1.5">
                     <Avatar nick={a.nick} hue={a.hue} size={26} />
                     <span className="text-[12.5px] font-bold text-gray-800">{a.nick}</span>
                     <SocialIcon social={a.social} size={13} />
                   </div>
+                  <div className="mt-2 pl-1.5 text-[11.5px] font-medium text-gray-500 italic truncate">
+                    {ctx.msgs.length ? `«${ctx.msgs[ctx.msgs.length - 1].text}»` : 'Сообщений пока нет — напишите первым'}
+                  </div>
+                  <Btn size="sm" className="w-full mt-2.5" onClick={() => onOpenDeal(ctx.id, 'comms')}><MessageCircle size={13} />Написать автору</Btn>
                 </div>
                 <Btn variant="outline" onClick={() => onOpenKB(ctx.brandId)}><BookOpen size={14} />Открыть базу знаний бренда</Btn>
               </>

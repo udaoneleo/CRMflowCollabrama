@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Save, Upload, Check, X, Trash2, ImagePlus, Type, Palette } from 'lucide-react';
+import { Plus, Save, Upload, Check, X, Trash2 } from 'lucide-react';
 import { BRANDS, type Brand } from '../data';
 import { Badge, Btn, Card, Field, inputCls, useToast, PostThumbWrap } from '../components/kb-helpers';
 
@@ -29,8 +29,8 @@ export default function KnowledgeBase({ initialBrandId }: { initialBrandId?: str
   };
 
   const TABS = [
-    ['main', 'Основная информация'], ['product', 'Продукт и УТП'], ['visual', 'Визуальный стиль'],
-    ['tov', 'Tone of Voice'], ['rules', 'Правила для авторов'], ['terms', 'Условия сотрудничества'],
+    ['main', 'Основная информация'], ['product', 'Продукт и УТП'],
+    ['rules', 'Правила для авторов'], ['terms', 'Условия сотрудничества'],
   ];
 
   return (
@@ -96,7 +96,6 @@ export default function KnowledgeBase({ initialBrandId }: { initialBrandId?: str
                     </select>
                   </Field>
                 </div>
-                <Field label="Сайт"><input className={inputCls} value={sel.site} onChange={e => patch({ site: e.target.value })} placeholder="brand.ru" /></Field>
                 <Field label="Описание бренда">
                   <textarea rows={4} className={inputCls + ' !h-auto py-2.5 resize-none leading-relaxed'} value={sel.desc} onChange={e => patch({ desc: e.target.value })} />
                 </Field>
@@ -147,83 +146,6 @@ export default function KnowledgeBase({ initialBrandId }: { initialBrandId?: str
                   </div>
                   <EditableList items={sel.usp} onChange={v => patchArr('usp', v)} tone="indigo" />
                 </Card>
-              </div>
-            )}
-
-            {tab === 'visual' && (
-              <div className="flex flex-col gap-4 anim-in">
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide">Цветовая палитра бренда</h4>
-                    <Btn variant="ghost" size="xs" onClick={() => patchArr('colors', [...sel.colors, '#6366F1'])}><Palette size={12} className="mr-1" />Добавить цвет</Btn>
-                  </div>
-                  <div className="flex gap-2.5 flex-wrap">
-                    {sel.colors.map((c, i) => (
-                      <div key={i} className="group relative">
-                        <input type="color" value={c} onChange={e => patchArr('colors', sel.colors.map((x, xi) => xi === i ? e.target.value : x))}
-                          className="w-14 h-14 rounded-xl border border-gray-200 cursor-pointer p-0 overflow-hidden" />
-                        <div className="text-[9.5px] font-mono font-bold text-gray-400 text-center mt-1">{c}</div>
-                        <button onClick={() => patchArr('colors', sel.colors.filter((_, xi) => xi !== i))}
-                          className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 w-5 h-5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><X size={10} /></button>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="p-4">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2.5 flex items-center gap-1.5"><Type size={13} />Шрифты</h4>
-                    <input className={inputCls} value={sel.fonts} onChange={e => patch({ fonts: e.target.value })} placeholder="Основной / акцидентный" />
-                  </Card>
-                  <Card className="p-4">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2.5">Гайдлайны</h4>
-                    <button onClick={() => toast('ok', 'Brandbook_2024.pdf загружен (8.4 MB)')}
-                      className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/40 transition-all py-4 flex flex-col items-center gap-1 text-gray-400 hover:text-indigo-600">
-                      <Upload size={16} /><span className="text-[11.5px] font-bold">Загрузить PDF / изображения</span>
-                    </button>
-                  </Card>
-                </div>
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide">Примеры визуалов</h4>
-                    <Btn variant="ghost" size="xs" onClick={() => toast('ok', 'Визуал добавлен в галерею')}><ImagePlus size={12} />Добавить</Btn>
-                  </div>
-                  <div className="flex gap-2.5">
-                    {[sel.hue, sel.hue + 60, sel.hue + 140, sel.hue + 210].map((h, i) => <PostThumbWrap key={i} hue={h} size={84} />)}
-                  </div>
-                </Card>
-                <Card className="p-4">
-                  <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2">Логотип и правила использования</h4>
-                  <textarea rows={3} className={inputCls + ' !h-auto py-2.5 resize-none leading-relaxed'} value={sel.logoRules} onChange={e => patch({ logoRules: e.target.value })} />
-                </Card>
-              </div>
-            )}
-
-            {tab === 'tov' && (
-              <div className="flex flex-col gap-4 anim-in">
-                <Card className="p-4">
-                  <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2.5">Характеристики тона</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {['Дружелюбный', 'Профессиональный', 'Юмористический', 'Экспертный', 'Дерзкий', 'Заботливый', 'Вдохновляющий'].map(t => {
-                      const on = sel.tovTraits.includes(t);
-                      return (
-                        <button key={t} onClick={() => patchArr('tovTraits', on ? sel.tovTraits.filter(x => x !== t) : [...sel.tovTraits, t])}
-                          className={`px-3 h-8.5 rounded-full border text-[12px] font-bold transition-all active:scale-95 ${on ? 'bg-indigo-500 border-indigo-500 text-white shadow-sm shadow-indigo-500/30' : 'bg-white border-gray-200 text-gray-500 hover:border-indigo-300'}`}>
-                          {on && <Check size={11} className="inline mr-1" />}{t}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </Card>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="p-4">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2.5">Примеры фраз</h4>
-                    <EditableList items={sel.tovPhrases} onChange={v => patchArr('tovPhrases', v)} tone="indigo" addLabel="Добавить фразу" />
-                  </Card>
-                  <Card className="p-4">
-                    <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wide mb-2.5">Запрещённые слова и выражения</h4>
-                    <EditableList items={sel.tovForbidden} onChange={v => patchArr('tovForbidden', v)} tone="red" addLabel="Добавить запрет" />
-                  </Card>
-                </div>
               </div>
             )}
 

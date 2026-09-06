@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { KanbanSquare, Briefcase, Users, FileText, MessageCircle, Tag, BookOpen, BarChart3, Bell, Plus, Search, Zap, X, Clapperboard, Plug, BellRing, ShieldAlert, PenTool } from 'lucide-react';
+import { KanbanSquare, Briefcase, Users, MessageCircle, Tag, BookOpen, BarChart3, Bell, Plus, Search, Zap, X, Clapperboard, BellRing, ShieldAlert, PenTool } from 'lucide-react';
 import { DEALS_INIT, BRANDS, AUTHORS, STAGES, authorById, brandById, fmtMoney, type Deal } from './data';
 import { ToastProvider, useToast, Badge, Avatar, Btn, Modal, Field, inputCls } from './components/ui';
 import Kanban from './screens/Kanban';
@@ -11,21 +11,18 @@ import ContractWizard from './screens/ContractWizard';
 import Erid from './screens/Erid';
 import Analytics from './screens/Analytics';
 import Publications from './screens/Publications';
-import Sources from './screens/Sources';
-import { DealsList, ContractsList, CommsList } from './screens/Lists';
+import { DealsList, CommsList } from './screens/Lists';
 
-type Screen = 'kanban' | 'deals' | 'authors' | 'author' | 'contracts' | 'comms' | 'erid' | 'kb' | 'analytics' | 'pubs' | 'sources';
+type Screen = 'kanban' | 'deals' | 'authors' | 'author' | 'comms' | 'erid' | 'kb' | 'analytics' | 'pubs';
 
 const MENU: { id: Screen; label: string; icon: React.ReactNode }[] = [
   { id: 'kanban', label: 'Воронка сделок', icon: <KanbanSquare size={16} /> },
   { id: 'deals', label: 'Сделки', icon: <Briefcase size={16} /> },
   { id: 'authors', label: 'Авторы', icon: <Users size={16} /> },
-  { id: 'contracts', label: 'Договоры', icon: <FileText size={16} /> },
   { id: 'comms', label: 'Коммуникации', icon: <MessageCircle size={16} /> },
   { id: 'erid', label: 'ERID-реестр', icon: <Tag size={16} /> },
   { id: 'kb', label: 'База знаний бренда', icon: <BookOpen size={16} /> },
   { id: 'pubs', label: 'Публикации', icon: <Clapperboard size={16} /> },
-  { id: 'sources', label: 'Источники аналитики', icon: <Plug size={16} /> },
   { id: 'analytics', label: 'Аналитика', icon: <BarChart3 size={16} /> },
 ];
 
@@ -40,6 +37,7 @@ function Shell() {
   const [screen, setScreen] = useState<Screen>('kanban');
   const [deals, setDeals] = useState<Deal[]>(DEALS_INIT);
   const [dealId, setDealId] = useState<string | null>(null);
+  const [dealTab, setDealTab] = useState<string | undefined>(undefined);
   const [wizardDeal, setWizardDeal] = useState<Deal | null>(null);
   const [newDeal, setNewDeal] = useState<null | { authorId?: string }>(null);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -56,7 +54,7 @@ function Shell() {
     return () => window.removeEventListener('keydown', h);
   }, []);
 
-  const openDeal = (id: string) => { setDealId(id); };
+  const openDeal = (id: string, tab?: string) => { setDealTab(tab); setDealId(id); };
   const deal = dealId ? deals.find(d => d.id === dealId) ?? null : null;
   const openKB = (brandId?: string) => { setKbBrand(brandId); setScreen('kb'); setDealId(null); };
 
@@ -137,24 +135,22 @@ function Shell() {
           {screen === 'deals' && <DealsList deals={deals} onOpenDeal={openDeal} />}
           {screen === 'authors' && <Authors onOpenProfile={id => { setProfileId(id); setScreen('author'); }} onNewDeal={id => setNewDeal({ authorId: id })} />}
           {screen === 'author' && <AuthorProfile authorId={profileId} deals={deals} onBack={() => setScreen('authors')} onNewDeal={id => setNewDeal({ authorId: id })} onOpenDeal={openDeal} />}
-          {screen === 'contracts' && <ContractsList onGenerate={() => setWizardDeal(deals.find(d => d.stage === 2) ?? deals[0])} />}
           {screen === 'comms' && <CommsList deals={deals} />}
           {screen === 'erid' && <Erid deals={deals} onOpenDeal={openDeal} />}
           {screen === 'kb' && <KnowledgeBase initialBrandId={kbBrand} key={kbBrand ?? 'kb'} />}
           {screen === 'pubs' && <Publications onOpenDeal={openDeal} />}
-          {screen === 'sources' && <Sources />}
           {screen === 'analytics' && <Analytics deals={deals} />}
         </main>
       </div>
 
       {/* ===== Оверлеи ===== */}
       {deal && (
-        <DealPanel deal={deal} deals={deals} onClose={() => setDealId(null)}
+        <DealPanel deal={deal} deals={deals} initialTab={dealTab} key={deal.id + (dealTab ?? '')} onClose={() => setDealId(null)}
           onUpdate={patch => setDeals(prev => prev.map(d => d.id === deal.id ? { ...d, ...patch } : d))}
           onOpenKB={openKB}
           onGenerateContract={d => { setDealId(null); setWizardDeal(d); }} />
       )}
-      {wizardDeal && <ContractWizard deal={wizardDeal} onClose={() => setWizardDeal(null)} onDone={() => { setWizardDeal(null); setScreen('contracts'); }} />}
+      {wizardDeal && <ContractWizard deal={wizardDeal} onClose={() => setWizardDeal(null)} onDone={() => setWizardDeal(null)} />}
       {newDeal && <NewDealModal initialAuthor={newDeal.authorId} onClose={() => setNewDeal(null)} onCreate={d => {
         setDeals(prev => [d, ...prev]);
         setNewDeal(null);

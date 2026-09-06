@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, FileText, Download, FilePlus2, Send, Paperclip, Eye, Briefcase, CheckCircle2, PenTool, Archive } from 'lucide-react';
+import { Search, Send, Paperclip, Eye, Briefcase, Archive } from 'lucide-react';
 import { BRANDS, STAGES, fmtMoney, authorById, brandById, type Deal } from '../data';
 import { Badge, Avatar, Card, Btn, useToast, inputCls } from '../components/ui';
 import { SocialIcon } from '../components/icons';
@@ -68,51 +68,6 @@ export function DealsList({ deals, onOpenDeal }: { deals: Deal[]; onOpenDeal: (i
             </table>
           </div>
         </Card>
-      </div>
-    </div>
-  );
-}
-
-/* ================= ДОГОВОРЫ ================= */
-const CONTRACTS = [
-  { id: 'c1', name: 'Договор_Samsung_auto_drive_08.09.2024.pdf', brand: 'Samsung', author: '@auto_drive', status: 'Подписан', date: '08.09.2024', sum: 110000 },
-  { id: 'c2', name: 'Договор_Xiaomi_game_zone_07.09.2024.pdf', brand: 'Xiaomi', author: '@game_zone', status: 'Ожидает подписи', date: '07.09.2024', sum: 75000 },
-  { id: 'c3', name: "Договор_L'Oreal_beauty_blog_15.09.2024.docx", brand: "L'Oréal Paris", author: '@beauty_blog', status: 'Ожидает подписи', date: '15.09.2024', sum: 45000 },
-  { id: 'c4', name: 'Договор_Ozon_foodie_moscow_01.09.2024.pdf', brand: 'Ozon', author: '@foodie_moscow', status: 'Подписан', date: '01.09.2024', sum: 40000 },
-  { id: 'c5', name: 'Договор_Nike_fitness_pro_13.09.2024.pdf', brand: 'Nike', author: '@fitness_pro', status: 'Черновик', date: '13.09.2024', sum: 60000 },
-];
-export function ContractsList({ onGenerate }: { onGenerate: () => void }) {
-  const toast = useToast();
-  const tone = (s: string) => s === 'Подписан' ? 'green' : s === 'Ожидает подписи' ? 'amber' : 'gray';
-  return (
-    <div className="h-full overflow-y-auto scroll-thin">
-      <div className="px-6 pt-5 pb-4 bg-gradient-to-b from-white to-transparent">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-[22px] font-display font-semibold text-gray-900">Договоры</h1>
-            <p className="text-[12.5px] font-medium text-gray-400 mt-1">{CONTRACTS.length} документов · 2 ожидают подписи автора</p>
-          </div>
-          <Btn onClick={onGenerate}><FilePlus2 size={14} />Создать договор</Btn>
-        </div>
-      </div>
-      <div className="px-6 pb-6 flex flex-col gap-2.5 stagger">
-        {CONTRACTS.map(c => (
-          <Card key={c.id} className="p-4 flex items-center gap-4 hover:border-indigo-200 hover:shadow-sm transition-all">
-            <span className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0"><FileText size={17} /></span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[13px] font-bold text-gray-900 truncate">{c.name}</span>
-                <Badge tone={tone(c.status)} dot>{c.status}</Badge>
-              </div>
-              <div className="text-[11.5px] font-semibold text-gray-400 mt-0.5">{c.brand} · {c.author} · от {c.date} · {c.status === 'Подписан' && <CheckCircle2 size={10} className="inline text-emerald-500" />} {fmtMoney(c.sum)}</div>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {c.status === 'Ожидает подписи' && <Btn variant="outline" size="sm" onClick={() => toast('ok', 'Напоминание о подписи отправлено ' + c.author)}><PenTool size={12} />Напомнить</Btn>}
-              <Btn variant="secondary" size="sm" onClick={() => toast('info', 'Открываем предпросмотр ' + c.name)}><Eye size={12} />Открыть</Btn>
-              <Btn variant="ghost" size="sm" onClick={() => toast('ok', 'Файл скачан')}><Download size={13} /></Btn>
-            </div>
-          </Card>
-        ))}
       </div>
     </div>
   );
