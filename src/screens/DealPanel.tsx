@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
-import { X, Share2, MoreHorizontal, Pencil, Paperclip, Send, Upload, FileText, Check, ShieldCheck, BookOpen, Bold, Italic, List, Image as ImageIcon, FilePlus2 } from 'lucide-react';
+import { X, Share2, MoreHorizontal, Pencil, Paperclip, Send, Upload, FileText, Check, ShieldCheck, BookOpen, Bold, Italic, List, Image as ImageIcon, FilePlus2, MessageCircle } from 'lucide-react';
 import { STAGES, fmtMoney, authorById, brandById, type Deal, type DealMsg } from '../data';
 import { SidePanel, Badge, Avatar, Btn, Tabs, useToast, Tip, CopyBtn, Field, inputCls } from '../components/ui';
 import { SocialIcon, FakeQR } from '../components/icons';
 
-export default function DealPanel({ deal, deals, onClose, onUpdate, onOpenKB, onGenerateContract }: {
+export default function DealPanel({ deal, deals, initialTab, onClose, onUpdate, onOpenKB, onGenerateContract }: {
   deal: Deal;
   deals: Deal[];
+  initialTab?: string;
   onClose: () => void;
   onUpdate: (patch: Partial<Deal>) => void;
   onOpenKB: (brandId?: string) => void;
   onGenerateContract: (deal: Deal) => void;
 }) {
   const toast = useToast();
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState(initialTab ?? 'overview');
   const [msg, setMsg] = useState('');
   const [uploading, setUploading] = useState<number | null>(null);
   const [checkOk, setCheckOk] = useState(false);
@@ -68,6 +69,7 @@ export default function DealPanel({ deal, deals, onClose, onUpdate, onOpenKB, on
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            <Btn variant="outline" size="sm" onClick={() => setTab('comms')}><MessageCircle size={14} />Написать автору</Btn>
             <Btn variant="ghost" size="sm" onClick={() => toast('info', 'Режим редактирования включён')}><Pencil size={14} />Редактировать</Btn>
             <Btn variant="ghost" size="sm" onClick={() => { navigator.clipboard?.writeText(location.href + '#' + deal.id).catch(() => {}); toast('ok', 'Ссылка на сделку скопирована'); }}><Share2 size={14} />Поделиться</Btn>
             <button className="w-8 h-8 rounded-lg text-gray-400 hover:bg-gray-100 flex items-center justify-center" onClick={() => toast('info', 'Действия: в архив, дублировать, удалить')}><MoreHorizontal size={16} /></button>
@@ -78,7 +80,7 @@ export default function DealPanel({ deal, deals, onClose, onUpdate, onOpenKB, on
 
       <Tabs active={tab} onChange={setTab} className="px-3 shrink-0" items={[
         { id: 'overview', label: 'Обзор' },
-        { id: 'comms', label: `Коммуникации · ${deal.msgs.length}` },
+        { id: 'comms', label: `Коммуникации · ${deal.msgs.length}`, icon: <MessageCircle size={13} /> },
         { id: 'docs', label: 'Документы' },
         { id: 'erid', label: 'ERID' },
         { id: 'kb', label: 'База знаний', icon: <BookOpen size={13} /> },
@@ -148,6 +150,20 @@ export default function DealPanel({ deal, deals, onClose, onUpdate, onOpenKB, on
         {/* ===== КОММУНИКАЦИИ ===== */}
         {tab === 'comms' && (
           <div className="flex flex-col h-full anim-in">
+            <div className="px-5 py-3 border-b border-indigo-100 bg-indigo-50/50 flex items-center gap-3 shrink-0">
+              <div className="relative shrink-0">
+                <Avatar nick={a.nick} hue={a.hue} size={36} />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[13px] font-bold text-gray-900">{a.nick}</span>
+                  <SocialIcon social={a.social} size={13} />
+                </div>
+                <div className="text-[11px] font-semibold text-gray-400">Связь с автором по сделке · обычно отвечает в течение часа</div>
+              </div>
+              <Badge tone="indigo" className="ml-auto shrink-0">{deal.msgs.length} сообщ.</Badge>
+            </div>
             <div ref={chatRef} className="flex-1 min-h-0 overflow-y-auto scroll-thin p-5 flex flex-col gap-3 bg-slate-50/50">
               {deal.msgs.length === 0 && <div className="m-auto text-center text-[12.5px] font-semibold text-gray-400">Сообщений пока нет — напишите автору первым</div>}
               {deal.msgs.map(m => m.kind === 'sys' ? (
@@ -291,9 +307,7 @@ export default function DealPanel({ deal, deals, onClose, onUpdate, onOpenKB, on
               <Badge tone="green" className="ml-auto" dot>{b.status}</Badge>
             </div>
             <section className="rounded-xl border border-gray-200 p-4">
-              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2">Tone of Voice</h4>
-              <div className="flex flex-wrap gap-1.5">{b.tovTraits.map(t => <Badge key={t} tone="indigo">{t}</Badge>)}</div>
-              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2 mt-3.5">Преимущества продукта</h4>
+              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2">Ключевые преимущества продукта</h4>
               <ul className="space-y-1.5">{b.usp.slice(0, 3).map(u => (
                 <li key={u} className="flex gap-2 text-[12.5px] font-medium text-gray-700"><Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />{u}</li>
               ))}</ul>
